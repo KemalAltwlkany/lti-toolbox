@@ -255,7 +255,7 @@ def example1():
     nyq.draw_contour()
     nyq.draw_roots()
     plt.show()
-
+    
 
 def example2():
     tf = [[1, -3], [1, 1, 0]]

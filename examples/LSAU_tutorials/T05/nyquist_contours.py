@@ -38,6 +38,7 @@ def problem3():
     plt.show()
 
 
+
 def problem4():
     tf = [[1], [1/9, 0, 1]]
     nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
