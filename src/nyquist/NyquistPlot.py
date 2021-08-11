@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-
 s22 = math.sqrt(2) / 2  # used a lot
 
 
@@ -100,9 +99,6 @@ class NyquistPlot:
         return self.fig, self.ax
 
     def draw_roots(self):
-        print(self.zero_values, self.zero_orders)
-        print(self.pole_values, self.pole_orders)
-
         for z_val, z_ord in zip(self.zero_values, self.zero_orders):
             self.draw_root(rtype='zero', coords=z_val, multiplicity=z_ord)
 
@@ -140,8 +136,7 @@ class NyquistPlot:
     # Assumes system does NOT have more than one pair of complex-conjugate poles on the imaginary axis.
     # Problems with contour size may happen as well: e.g., a pole in origin and a zero/pole at s=0.5 or s=1.
     def draw_contour(self):
-        # pole in origin
-        # 1st part of contour (potentially)
+        # pole in origin?
         origin_pole = False
         for pole in self.pole_values:
             if pole == 0:
@@ -152,42 +147,91 @@ class NyquistPlot:
                           shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
                 break
 
-        # (only for systems with complex-conjugate poles on imaginary axis)
-        imag_value = 0
+        # system with complex-conjugate poles on imaginary axis?
+        imag_pole_val = 0
+        imag_pole = False
         for pole in self.pole_values:
             if np.iscomplex(pole) and np.real(pole) == 0:
-                imag_value = np.abs(np.imag(pole))
-                patch = patches.Arc(xy=(np.real(pole), np.imag(pole)), width=2.0, height=2.0, angle=0, theta1=-90, theta2=90, lw=2.25)
-                self.ax.add_patch(patch)
-                plt.arrow(x=np.real(pole)+s22, y=np.imag(pole)+s22, dx=-0.01, dy=0.01,
-                          shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
-
-                # repeat above for complex-conjugate pole
-                patch = patches.Arc(xy=(np.real(pole), -np.imag(pole)), width=2.0, height=2.0, angle=0, theta1=-90,
-                                    theta2=90, lw=2.25)
-                self.ax.add_patch(patch)
-                plt.arrow(x=np.real(pole) + s22, y=-np.imag(pole) + s22, dx=-0.01, dy=0.01,
-                          shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+                imag_pole = True
+                imag_pole_val = pole
                 break
 
-        # 2nd part of contour
-        omega_axis_start = 0
-        if origin_pole is True:
-            omega_axis_start = 1
-        print(imag_value)
-        plt.plot([0, 0], [omega_axis_start, omega_axis_start+imag_value-1], color='k', lw=2.25)
-        plt.plot([0, 0], [omega_axis_start + imag_value + 1, self.ymax], color='k', lw=2.25)
-        plt.arrow(x=0, y=self.ymax/2, dx=0.00, dy=0.01,
-                  shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+        if origin_pole and imag_pole:
+            patch = patches.Arc(xy=(0, 0), width=2.0, height=2.0, angle=0, theta1=-90, theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=s22, y=s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
 
-        plt.plot([0, 0], [-omega_axis_start, -omega_axis_start-imag_value+1], color='k', lw=2.25)
-        plt.plot([0, 0], [-omega_axis_start - imag_value-1, -self.ymax], color='k', lw=2.25)
-        plt.arrow(x=0, y=-self.ymax/2, dx=0.00, dy=0.01,
-                  shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+            plt.plot([0, 0], [1, np.abs(np.imag(imag_pole_val)) - 1], color='k', lw=2.25)
+            plt.plot([0, 0], [np.abs(np.imag(imag_pole_val)) + 1, self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
 
+            plt.plot([0, 0], [-1, -np.abs(np.imag(imag_pole_val)) + 1], color='k', lw=2.25)
+            plt.plot([0, 0], [-np.abs(np.imag(imag_pole_val)) - 1, -self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=-self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            patch = patches.Arc(xy=(np.real(imag_pole_val), np.imag(imag_pole_val)), width=2.0, height=2.0, angle=0,
+                                theta1=-90, theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=np.real(imag_pole_val) + s22, y=np.imag(imag_pole_val) + s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            # repeat above for complex-conjugate pole
+            patch = patches.Arc(xy=(np.real(imag_pole_val), -np.imag(imag_pole_val)), width=2.0, height=2.0, angle=0,
+                                theta1=-90,
+                                theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=np.real(imag_pole_val) + s22, y=-np.imag(imag_pole_val) + s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+        elif origin_pole and not imag_pole:
+            patch = patches.Arc(xy=(0, 0), width=2.0, height=2.0, angle=0, theta1=-90, theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=s22, y=s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            plt.plot([0, 0], [1, self.ymax], color='k', lw=2.25)
+            plt.plot([0, 0], [-1, -self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+            plt.arrow(x=0, y=-self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+        elif not origin_pole and imag_pole:
+            plt.plot([0, 0], [0, np.abs(np.imag(imag_pole_val)) - 1], color='k', lw=2.25)
+            plt.plot([0, 0], [np.abs(np.imag(imag_pole_val)) + 1, self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            plt.plot([0, 0], [0, -np.abs(np.imag(imag_pole_val)) + 1], color='k', lw=2.25)
+            plt.plot([0, 0], [-np.abs(np.imag(imag_pole_val)) - 1, -self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=-self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            patch = patches.Arc(xy=(np.real(imag_pole_val), np.imag(imag_pole_val)), width=2.0, height=2.0, angle=0,
+                                theta1=-90, theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=np.real(imag_pole_val) + s22, y=np.imag(imag_pole_val) + s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+
+            # repeat above for complex-conjugate pole
+            patch = patches.Arc(xy=(np.real(imag_pole_val), -np.imag(imag_pole_val)), width=2.0, height=2.0, angle=0,
+                                theta1=-90,
+                                theta2=90, lw=2.25)
+            self.ax.add_patch(patch)
+            plt.arrow(x=np.real(imag_pole_val) + s22, y=-np.imag(imag_pole_val) + s22, dx=-0.01, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+        else:
+            plt.plot([0, 0], [-self.ymax, self.ymax], color='k', lw=2.25)
+            plt.arrow(x=0, y=self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
+            plt.arrow(x=0, y=-self.ymax / 2, dx=0.00, dy=0.01,
+                      shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
 
         # 3rd part of the contour
-        patch = patches.Arc(xy=(0, 0), width=2*self.ymax, height=2*self.ymax, angle=0, theta1=-90, theta2=90, lw=2.5)
+        patch = patches.Arc(xy=(0, 0), width=2 * self.ymax, height=2 * self.ymax, angle=0, theta1=-90, theta2=90,
+                            lw=2.5)
         self.ax.add_patch(patch)
         plt.arrow(x=self.ymax * s22, y=self.ymax * s22, dx=0.01, dy=-0.01,
                   shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
@@ -195,9 +239,13 @@ class NyquistPlot:
                   shape='full', lw=4.5, length_includes_head=True, head_width=.15, color='k', zorder=25)
 
         # R -> inf arrow
-        plt.arrow(x=omega_axis_start, y=omega_axis_start, dx=self.ymax*math.sqrt(3)/2, dy=-self.ymax/2,
+        plt.arrow(x=0, y=0, dx=self.ymax * math.sqrt(3) / 2, dy=-self.ymax / 2,
                   shape='full', ls='--', lw=0.5, length_includes_head=True, head_width=.35, color='k')
-        self.ax.annotate(r'$R\rightarrow \infty$', xy=(3*self.ymax/4, -3*self.ymax/7), xycoords='data', fontsize=12)
+        self.ax.annotate(r'$R\rightarrow \infty$', xy=(3 * self.ymax / 4, -3 * self.ymax / 7), xycoords='data',
+                         fontsize=12)
+
+    def annotate_zero_pole(self, annotation_text, xy, fontsize=10):
+        self.ax.annotate(annotation_text, xy=xy, xycoords='data', fontsize=fontsize)
 
 
 def example1():
@@ -227,9 +275,18 @@ def example3():
     plt.show()
 
 
+def example4():
+    tf = [[1], [1, 0, 4, 0]]
+    nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
+    nyq.draw_template()
+    nyq.draw_contour()
+    nyq.draw_roots()
+    plt.show()
+
+
 if __name__ == '__main__':
     example1()
     example2()
     example3()
+    example4()
     pass
-
