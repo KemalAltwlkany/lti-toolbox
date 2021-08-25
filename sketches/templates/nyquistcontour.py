@@ -6,10 +6,10 @@ import matplotlib.patches as patches
 s22 = math.sqrt(2) / 2  # used a lot
 
 
-class NyquistPlot:
+class NyquistContour:
     def __init__(self, tf=None, xmin=-5, xmax=5, ymin=-5, ymax=5, ticks_frequency=1, label_plane=True,
                  planelabel=r'$\{s\}$', label_axis=True, xlabel=r'$\sigma$', ylabel=r'$j\omega$', ticks=True, grid=True,
-                 identical_scales=True):
+                 identical_scales=True, figsize=(11, 11)):
         self.tf = tf
         self.xmin = xmin
         self.xmax = xmax
@@ -24,6 +24,7 @@ class NyquistPlot:
         self.ticks = ticks
         self.grid = grid
         self.identical_scales = identical_scales
+        self.figsize = figsize
         self.zero_values, self.pole_values, self.zero_orders, self.pole_orders = None, None, None, None
         self.compute_zeros_poles()
 
@@ -45,7 +46,7 @@ class NyquistPlot:
 
     # draws the coordinate system, labels the axis and plane.
     def draw_template(self):
-        fig, ax = plt.subplots(figsize=(11, 11))
+        fig, ax = plt.subplots(figsize=self.figsize)
 
         # identical scales for both axes
         if self.identical_scales is True:
@@ -248,22 +249,22 @@ class NyquistPlot:
         self.ax.annotate(annotation_text, xy=xy, xycoords='data', fontsize=fontsize)
 
     def nyquist_diagram(self):
-        
+
         pass
 
 
 def example1():
     tf = [[1, 3], [1, 3, 2]]
-    nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
+    nyq = NyquistContour(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
     nyq.draw_template()
     nyq.draw_contour()
     nyq.draw_roots()
     plt.show()
-    
+
 
 def example2():
     tf = [[1, -3], [1, 1, 0]]
-    nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
+    nyq = NyquistContour(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
     nyq.draw_template()
     nyq.draw_contour()
     nyq.draw_roots()
@@ -272,7 +273,7 @@ def example2():
 
 def example3():
     tf = [[1, 4], [1, 0, 4]]
-    nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
+    nyq = NyquistContour(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
     nyq.draw_template()
     nyq.draw_contour()
     nyq.draw_roots()
@@ -281,7 +282,7 @@ def example3():
 
 def example4():
     tf = [[1], [1, 0, 4, 0]]
-    nyq = NyquistPlot(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
+    nyq = NyquistContour(tf, xmin=-5, xmax=12, ymin=-12, ymax=12, label_axis=True, grid=True, ticks=False)
     nyq.draw_template()
     nyq.draw_contour()
     nyq.draw_roots()
